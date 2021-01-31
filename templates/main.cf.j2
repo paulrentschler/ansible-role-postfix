@@ -70,7 +70,7 @@ unknown_local_recipient_reject_code = 550
 # TRUST AND RELAY CONTROL
 ##
 mynetworks = {{ postfix_mynetworks }}
-#relay_domains = $mydestination
+relay_domains = $mydestination
 relayhost = {{ postfix_relayhost }}
 
 
@@ -174,7 +174,6 @@ smtpd_tls_exclude_ciphers =
     EXPORT, LOW, MD5, SEED, IDEA, RC2
 
 
-{% block additional_configuration %}
 ##
 # TRANSPORT MAP
 ##
@@ -185,7 +184,6 @@ transport_maps = {{ postfix_transport_maps }}
 {% else %}
 #transport_maps = regexp:/etc/postfix/transportregex
 {% endif %}
-{% endblock %}
 
 
 
@@ -202,4 +200,8 @@ html_directory = no
 manpage_directory = /usr/share/man
 sample_directory = /usr/share/doc/postfix-2.6.6/samples
 readme_directory = no
+
+# See http://www.postfix.org/COMPATIBILITY_README.html
+#   -- default to 2 on fresh installs.
+compatibility_level = 2
 

@@ -19,6 +19,10 @@ Specify the hostname of the server if it is other than what Ansible knows.
 
     postfix_myhostname: "{{ ansible_nodename }}"
 
+Specify the domain of the server (not defined by default).
+
+    postfix_mydomain: ""
+
 Specify the inet_interfaces that Postfix listens on.
 
     postfix_inet_interfaces: "$myhostname, localhost"
