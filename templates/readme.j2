@@ -1,0 +1,16 @@
+#
+# {{ ansible_managed }}
+#
+#
+# This directory holds configuration file fragments that are assembled
+# together to create the Postfix master.cf file.
+#
+# Only files ending in .cf are processed
+#
+# Files are combined together in alphabetical/numerical order, thus
+# the 000-base.cf file should always be first in the list.
+#
+# The paulrentschler.postfix Ansible role can be run with the `postfix_config`
+# tag to rebuild the master.cf file from it's fragments OR the
+# `postfix rebuild config` handler can be triggered to cause the same result.
+#

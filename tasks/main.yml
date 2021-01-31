@@ -1,2 +1,117 @@
 ---
-# tasks file for postfix
+# tasks for installation and configuration of Postfix
+
+##
+# Install Postfix and the local mail utilities
+##
+- name: install Postfix
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop:
+      - postfix
+      - ca-certificates
+  become: yes
+
+- name: install local mail utilities (Debian)
+  ansible.builtin.package:
+    name: mailutils
+    state: present
+  become: yes
+  when: ansible_os_family == 'Debian'
+
+- name: install local mail utilities (RedHat)
+  ansible.builtin.package:
+    name: mailx
+    state: present
+  become: yes
+  when: ansible_os_family == 'RedHat'
+
+
+##
+# Set the main configuration file
+##
+- name: add main.cf configuration file
+  ansible.builtin.template:
+    src: main.cf.j2
+    dest: /etc/postfix/main.cf
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify: postfix restart
+
+
+##
+# Handle assembling the master configuration file from fragments
+#
+# This is done so that if other programs need to add to this file, they
+# can easily do so while keeping everything idempotent.
+##
+- name: create a directory for the master.cf fragments
+  ansible.builtin.file:
+    path: /etc/postfix/master.d
+    state: directory
+    owner: root
+    group: "{{ postfix_admin_group }}"
+    mode: 0770
+  become: yes
+
+- name: add the readme file to explain the directory
+  ansible.builtin.template:
+    src: readme.j2
+    dest: /etc/postfix/master.d/_README
+    owner: root
+    group: "{{ postfix_admin_group }}"
+    mode: 0440
+  become: yes
+
+- name: add the base configuration file
+  ansible.builtin.template:
+    src: master.cf.j2
+    dest: /etc/postfix/master.d/000-base.cf
+    owner: root
+    group: "{{ postfix_admin_group }}"
+    mode: 0640
+  become: yes
+  tags:
+    - postfix_config
+
+- name: rebuild the postfix master.cf file
+  assemble:
+    src: /etc/postfix/master.d
+    dest: /etc/postfix/master.cf
+    regexp: '^(.+)\.cf$'
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify: postfix restart
+  tags:
+    - postfix_config
+
+
+##
+# Define email aliases
+##
+- name: add aliases file
+  ansible.builtin.template:
+    src: aliases.j2
+    dest: /etc/aliases
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify: hash aliases
+
+
+##
+# Start Postfix
+##
+- name: ensure Postfix is started
+  ansible.builtin.service:
+    name: postfix
+    state: started
+    enabled: yes
+  become: yes
+

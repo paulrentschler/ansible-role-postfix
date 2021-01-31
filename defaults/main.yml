@@ -1,2 +1,41 @@
 ---
-# defaults file for postfix
+# defaults for Postfix related variables
+
+
+postfix_myhostname: "{{ ansible_nodename }}"
+postfix_inet_interfaces: "$myhostname, localhost"
+postfix_mydestination: "$myhostname, localhost.$mydomain, localhost, $mydomain"
+postfix_local_recipient_maps: "unix:passwd.byname $alias_maps $transport_maps"
+
+# The mynetworks parameter specifies the list of "trusted" SMTP
+# clients that are allowed to relay mail through Postfix.
+postfix_mynetworks: "127.0.0.0/8, [::ffff:127.0.0.0]/104, [::1]/128"
+postfix_relayhost: ""
+
+# TLS settings
+postfix_smtpd_use_tls: no
+postfix_tls_cert: "/etc/ssl/certs/ssl-cert-snakeoil.pem"
+postfix_tls_key: "/etc/ssl/private/ssl-cert-snakeoil.key"
+
+# SASL settings
+postfix_smtp_sasl_auth_enable: no
+postfix_smtp_tls_cafile: ""
+postfix_smtp_sasl_user: "{{ ansible_ssh_user }}"
+postfix_smtp_sasl_password: ""
+
+# Transport map settings
+#postfix_transport_maps: regexp:/etc/postfix/transportregex
+
+# Set who should receive mail sent to the `root` user
+postfix_roots_mail: root
+
+# Admin group that should get permissions on configuration files
+postfix_admin_group: root
+
+# Aliases that should be defined
+#   define `name` as the local username to match as the alias
+#          `email` as the email address being aliased to
+postfix_aliases: []
+
+# Specify additional external delivery methods that go into master.cf
+postfix_additional_external_delivery_methods: []

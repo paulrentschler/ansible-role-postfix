@@ -1,2 +1,43 @@
 ---
 # handlers file for postfix
+
+- name: postfix restart
+  ansible.builtin.service:
+    name: postfix
+    state: restarted
+    enabled: true
+  become: yes
+
+- name: hash aliases
+  ansible.builtin.shell: newaliases
+  become: yes
+
+# This handler can be triggered by other roles/tasks to ensure that
+# the master.cf file gets rebuilt from all the files in the master.d directory
+- name: postfix rebuild config
+  block:
+    - name: add the base configuration file
+      ansible.builtin.template:
+        src: master.cf.j2
+        dest: /etc/postfix/master.d/000-base.cf
+        owner: root
+        group: "{{ postfix_admin_group }}"
+        mode: 0640
+
+    - name: rebuild the postfix master.cf file
+      assemble:
+        src: /etc/postfix/master.d
+        dest: /etc/postfix/master.cf
+        regexp: '^(.+)\.cf$'
+        owner: root
+        group: root
+        mode: 0644
+      register: _postfix_assemble
+
+    - name: postfix restart
+      ansible.builtin.service:
+        name: postfix
+        state: restarted
+        enabled: true
+      when: _postfix_assemble.changed
+  become: yes

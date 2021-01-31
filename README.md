@@ -1,38 +1,137 @@
-Role Name
+paulrentschler.postfix
 =========
 
-A brief description of the role goes here.
+Installs and configures Postfix on Ubuntu Linux.
+
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+None.
+
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+The following variables are available with defaults defined in `defaults/main.yml`:
+
+Specify the hostname of the server if it is other than what Ansible knows.
+
+    postfix_myhostname: "{{ ansible_nodename }}"
+
+Specify the inet_interfaces that Postfix listens on.
+
+    postfix_inet_interfaces: "$myhostname, localhost"
+
+Specify the domains that this Postfix instance represents.
+
+    postfix_mydestination: "$myhostname, localhost.$mydomain, localhost, $mydomain"
+
+Specify the local recipient map(s) to use.
+
+    postfix_local_recipient_maps: "unix:passwd.byname $alias_maps $transport_maps"
+
+Specify the "trusted" SMTP clients that are allowed to relay mail through this Postfix instannce.
+
+    postfix_mynetworks: "127.0.0.0/8, [::ffff:127.0.0.0]/104, [::1]/128"
+
+Specify the host that email from this Postfix instance should be passed through.
+
+    postfix_relayhost: ""
+
+Specify the transport maps to be used (not defined by default).
+
+    postfix_transport_maps: regexp:/etc/postfix/transportregex
+
+Specify who should receive mail sent to the `root` user.
+
+    postfix_roots_mail: root
+
+Specify the group that should get permissions on configuration files.
+
+    postfix_admin_group: root
+
+Define email aliases. Each entry in the list should be a dictionary consisting of:
+
+* `name` -- the alias to match and translate into `email`
+* `email` -- the email address mail should directed to
+
+    postfix_aliases: []
+
+Specify additional external delivery methods that go into master.cf.
+
+    postfix_additional_external_delivery_methods: []
+
+
+### TLS settings
+
+Set to "yes" to enable the use of TLS encryption when sending messages.
+
+    postfix_smtpd_use_tls: no
+
+Specify the SSL/TLS certificate used for sending encrypted messages.
+
+    postfix_tls_cert: "/etc/ssl/certs/ssl-cert-snakeoil.pem"
+
+Specify the SSL/TLS certificate's private key.
+
+    postfix_tls_key: "/etc/ssl/private/ssl-cert-snakeoil.key"
+
+
+### SASL settings
+
+Set to "yes" to enable SASL authentication for sending messages.
+
+    postfix_smtp_sasl_auth_enable: no
+
+Specify the SSL/TLS Certificate Authority (SA) certificate file.
+
+    postfix_smtp_tls_cafile: ""
+
+Specify the SASL username to use.
+
+    postfix_smtp_sasl_user: "{{ ansible_ssh_user }}"
+
+Specify the SASL password to use.
+
+    postfix_smtp_sasl_password: ""
+
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None.
+
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+Simple version using all the defaults:
 
-    - hosts: servers
+    - hosts: all
       roles:
-         - { role: username.rolename, x: 42 }
+        - paulrentschler.postfix
+
+
+Custom version specifying settings:
+
+    - hosts: all
+      roles:
+        - { role: paulrentschler.postfix,
+            postfix_myhostname: mail.example.com,
+            postfix_relayhost: mail.provider.net,
+            postfix_roots_mail: sysadmin@example.com,
+            postfix_admin_group: admin,
+            }
+
 
 License
 -------
 
-BSD
+MIT
+
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Created by Paul Rentschler in 2021.
