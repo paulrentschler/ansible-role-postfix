@@ -1,5 +1,7 @@
 paulrentschler.postfix
-=========
+======================
+
+[![MIT licensed][mit-badge]][mit-link]
 
 Installs and configures Postfix on Ubuntu Linux.
 
@@ -132,10 +134,14 @@ Custom version specifying settings:
 License
 -------
 
-MIT
+[MIT][mit-link]
 
 
 Author Information
 ------------------
 
 Created by Paul Rentschler in 2021.
+
+
+[mit-badge]: https://img.shields.io/badge/license-MIT-blue.svg
+[mit-link]: https://github.com/paulrentschler/ansible-role-postfix/blob/master/LICENSE
