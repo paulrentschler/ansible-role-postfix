@@ -39,5 +39,5 @@
         name: postfix
         state: restarted
         enabled: true
-      when: _postfix_assemble.changed
+      when: _postfix_assemble is defined and _postfix_assemble.changed
   become: yes
