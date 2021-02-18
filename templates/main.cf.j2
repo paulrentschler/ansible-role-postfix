@@ -49,6 +49,11 @@ mydomain = {{ postfix_mydomain }}
 myorigin = $mydomain
 {% endif %}
 append_dot_mydomain = no
+{% if postfix_local_only|bool %}
+default_transport = error: Local delivery only!
+{% else %}
+default_transport = smtp
+{% endif %}
 
 
 ##
