@@ -9,7 +9,9 @@
   become: yes
 
 - name: hash aliases
-  ansible.builtin.shell: newaliases
+  ansible.builtin.shell:
+    argv:
+      - newaliases
   become: yes
 
 # This handler can be triggered by other roles/tasks to ensure that
