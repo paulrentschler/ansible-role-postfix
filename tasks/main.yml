@@ -54,7 +54,7 @@
     state: directory
     owner: root
     group: "{{ postfix_admin_group }}"
-    mode: 0770
+    mode: 0750
   become: yes
 
 - name: add the readme file to explain the directory
